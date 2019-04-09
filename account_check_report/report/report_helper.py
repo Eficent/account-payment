@@ -4,9 +4,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from odoo.tools.misc import DEFAULT_SERVER_DATE_FORMAT
-from odoo import api, exceptions, models, _
+from odoo import api, models
 from odoo.tools import float_is_zero
 
 
