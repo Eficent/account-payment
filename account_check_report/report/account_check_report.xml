@@ -45,7 +45,7 @@
                                                       t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                             </td>
                                             <td>
-                                                <span t-esc="payed_amount(line)"
+                                                <span t-esc="paid_amount(o, line)"
                                                       t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                             </td>
                                         </tr>

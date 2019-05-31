@@ -19,7 +19,7 @@ class ReportCheckPrint(models.AbstractModel):
         date = datetime.strptime(str_date, DEFAULT_SERVER_DATE_FORMAT).date()
         return date.strftime(lang.date_format)
 
-    def _get_payed_amount(self, invoice):
+    def _get_paid_amount(self, payment, invoice):
         amount_currency = 0.0
         amount = 0.0
         total_amount_to_show = 0.0
@@ -28,11 +28,14 @@ class ReportCheckPrint(models.AbstractModel):
             if invoice.type in ('out_invoice', 'in_refund'):
                 amount = sum(
                     [p.amount for p in pay.matched_debit_ids if
-                     p.debit_move_id in invoice.move_id.line_ids])
+                     p.debit_move_id in invoice.move_id.line_ids
+                     and p.credit_move_id.payment_id == payment])
                 amount_currency = sum([p.amount_currency for p in
                                        pay.matched_debit_ids if
                                        p.debit_move_id in
-                                       invoice.move_id.line_ids])
+                                       invoice.move_id.line_ids
+                                       and p.credit_move_id.payment_id
+                                       == payment])
                 if pay.matched_debit_ids:
                     payment_currency_id = \
                         all(
@@ -44,11 +47,14 @@ class ReportCheckPrint(models.AbstractModel):
             elif invoice.type in ('in_invoice', 'out_refund'):
                 amount = sum(
                     [p.amount for p in pay.matched_credit_ids if
-                     p.credit_move_id in invoice.move_id.line_ids])
+                     p.credit_move_id in invoice.move_id.line_ids
+                     and p.debit_move_id.payment_id == payment])
                 amount_currency = sum([p.amount_currency for p in
                                        pay.matched_credit_ids if
                                        p.credit_move_id in
-                                       invoice.move_id.line_ids])
+                                       invoice.move_id.line_ids
+                                       and p.debit_move_id.payment_id
+                                       == payment])
                 if pay.matched_credit_ids:
                     payment_currency_id = \
                         all(
@@ -89,7 +95,7 @@ class ReportCheckPrint(models.AbstractModel):
             'docs': payments,
             'time': time,
             'total_amount': self._get_total_amount,
-            'payed_amount': self._get_payed_amount,
+            'paid_amount': self._get_paid_amount,
             '_format_date_to_partner_lang': self._format_date_to_partner_lang,
         }
         return self.env['report'].render(
