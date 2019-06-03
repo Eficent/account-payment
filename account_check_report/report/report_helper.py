@@ -29,7 +29,8 @@ class ReportCheckPrint(models.AbstractModel):
                 amount = 0
                 amount_currency = 0
                 for p in pay.matched_debit_ids:
-                    if p in invoice.move_id.line_ids.mapped('matched_credit_ids'):
+                    if p in invoice.move_id.line_ids.mapped(
+                            'matched_credit_ids'):
                         if p.credit_move_id.payment_id.id == payment.id:
                             amount += p.amount
                             amount_currency += amount_currency
@@ -45,7 +46,8 @@ class ReportCheckPrint(models.AbstractModel):
                 amount = 0
                 amount_currency = 0
                 for p in pay.matched_credit_ids:
-                    if p in invoice.move_id.line_ids.mapped('matched_debit_ids'):
+                    if p in invoice.move_id.line_ids.mapped(
+                            'matched_debit_ids'):
                         if p.debit_move_id.payment_id.id == payment.id:
                             amount += p.amount
                             amount_currency += amount_currency
