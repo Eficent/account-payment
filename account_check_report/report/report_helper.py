@@ -26,16 +26,13 @@ class ReportCheckPrint(models.AbstractModel):
         for pay in invoice.payment_move_line_ids:
             payment_currency_id = False
             if invoice.type in ('out_invoice', 'in_refund'):
-                amount = sum(
-                    [p.amount for p in pay.matched_debit_ids if
-                     p.debit_move_id in invoice.move_id.line_ids
-                     and p.credit_move_id.payment_id == payment])
-                amount_currency = sum([p.amount_currency for p in
-                                       pay.matched_debit_ids if
-                                       p.debit_move_id in
-                                       invoice.move_id.line_ids
-                                       and p.credit_move_id.payment_id
-                                       == payment])
+                amount = 0
+                amount_currency = 0
+                for p in pay.matched_debit_ids:
+                    if p in invoice.move_id.line_ids.mapped('matched_credit_ids'):
+                        if p.credit_move_id.payment_id.id == payment.id:
+                            amount += p.amount
+                            amount_currency += amount_currency
                 if pay.matched_debit_ids:
                     payment_currency_id = \
                         all(
@@ -45,16 +42,13 @@ class ReportCheckPrint(models.AbstractModel):
                         and pay.matched_debit_ids[0].currency_id \
                         or False
             elif invoice.type in ('in_invoice', 'out_refund'):
-                amount = sum(
-                    [p.amount for p in pay.matched_credit_ids if
-                     p.credit_move_id in invoice.move_id.line_ids
-                     and p.debit_move_id.payment_id == payment])
-                amount_currency = sum([p.amount_currency for p in
-                                       pay.matched_credit_ids if
-                                       p.credit_move_id in
-                                       invoice.move_id.line_ids
-                                       and p.debit_move_id.payment_id
-                                       == payment])
+                amount = 0
+                amount_currency = 0
+                for p in pay.matched_credit_ids:
+                    if p in invoice.move_id.line_ids.mapped('matched_debit_ids'):
+                        if p.debit_move_id.payment_id.id == payment.id:
+                            amount += p.amount
+                            amount_currency += amount_currency
                 if pay.matched_credit_ids:
                     payment_currency_id = \
                         all(
